@@ -19,32 +19,22 @@ from textgrad.autograd import FormattedLLMCall
 
 DEFAULT_TEST_TIME_WITH_TESTS = """You are an intelligent assistant used as an evaluator, and part of an optimization system. 
 You will analyze a code implementation for a coding solution for scientific problems. 
-Think about the correctness of the code in various test cases.
-Give very concise feedback.
 Investigate the code problem and the provided implementation. 
-Do not provide a revised implementation. 
-If you think the code is incorrect, carefully suggest why there are issues with the code and provide feedback.
+Give very concise feedback. Carefully suggest why there are issues with the code. Do not provide a revised implementation. 
 """
-
-default_instruction_test = (f"")
 
 class CodeTestTime(Module):
     def __init__(self,
-                 engine: EngineLM,
-                 evaluation_instruction: str = default_instruction_test,
-                 system_prompt: Variable = None):
+                 engine: EngineLM):
         super().__init__()
-        if system_prompt:
-            self.tt_system_prompt = system_prompt
-        else:
-            tt_system_prompt = DEFAULT_TEST_TIME_WITH_TESTS
-            self.tt_system_prompt = Variable(tt_system_prompt,
-                                                requires_grad=False,
-                                                role_description="system prompt for the evaluation of the code solution")
+        tt_system_prompt = DEFAULT_TEST_TIME_WITH_TESTS
+        self.tt_system_prompt = Variable(tt_system_prompt,
+                                            requires_grad=False,
+                                            role_description="system prompt for the evaluation of the code solution")
         self.engine = engine
         format_string = "You are a language model that evaluates a python code snippet.\n"
-        format_string += "{instruction}\n**The coding problem:**\n\n{{problem}}\n**{role}**{{program}}**\n"
-        self.format_string = format_string.format(instruction=evaluation_instruction, role=CODE_INSTANCE_ROLE_DESCRIPTION)
+        format_string += "{{problem}}\n**{role}**{{program}}**\n"
+        self.format_string = format_string.format(role=CODE_INSTANCE_ROLE_DESCRIPTION)
         self.fields = {"problem": None, "program": None}
         self.formatted_llm_call = FormattedLLMCall(engine=self.engine,
                                                    format_string=self.format_string,
@@ -92,7 +82,7 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
     :param prompt:
     :return:
     """
-    MAX_ITERS = 3
+    MAX_ITERS = 1
     model = model[9:]
     ENGINE_API = get_engine(engine_name=model) # seed
     generated_programs = []
