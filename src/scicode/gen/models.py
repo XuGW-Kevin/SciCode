@@ -5,6 +5,7 @@ import google.generativeai as genai
 import config
 import re
 from scicode import keys_cfg_path
+from .prompts import generate_textgrad_response
 
 
 def get_config():
@@ -87,7 +88,9 @@ def generate_google_response(prompt: str, *, model: str = "gemini-pro",
 
 def get_model_function(model: str, **kwargs):
     """Return the appropriate function to generate a response based on the model"""
-    if "gpt" in model:
+    if "textgrad" in model:
+        fct = generate_textgrad_response
+    elif "gpt" in model:
         fct = generate_openai_response
     elif "claude" in model:
         fct = generate_anthropic_response
