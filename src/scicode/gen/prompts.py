@@ -1,10 +1,3 @@
-CODE_INSTANCE_ROLE_DESCRIPTION = "Code generated that must be evaluated for correctness"
-SYSTEM_PROMPT_FOR_FIRST_CODE = """You are an AI that only responds with python code, NOT ENGLISH. You will be given a function signature and its docstring by the user. Write your full implementation (restate the function signature).
-Use a Python code block to write your response. For example:
-```python
-print('Hello world!')
-```"""
-
 import copy
 from dotenv import load_dotenv
 load_dotenv()
@@ -17,10 +10,12 @@ from textgrad.tasks import load_instance_task
 from textgrad.autograd.function import Module
 from textgrad.autograd import FormattedLLMCall
 
+CODE_INSTANCE_ROLE_DESCRIPTION = "Code generated for scientific problems that must be evaluated for correctness"
+SYSTEM_PROMPT_FOR_FIRST_CODE = """You are a helpful assistant."""
 DEFAULT_TEST_TIME_WITH_TESTS = """You are an intelligent assistant used as an evaluator, and part of an optimization system. 
-You will analyze a code implementation for a coding solution for scientific problems. 
-Investigate the code problem and the provided implementation. 
-Give very concise feedback. Carefully suggest why there are issues with the code. Do not provide a revised implementation. 
+You will analyze a code implementation for scientific problems. 
+Investigate the problem and the provided implementation. 
+Give very concise feedback. If you think the code is wrong, carefully suggest why there are issues with the code. Do not provide a revised implementation. 
 """
 
 class CodeTestTime(Module):
@@ -98,8 +93,7 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
 
     optimizer = TextualGradientDescent(engine=ENGINE_API,
                                        parameters=[instance_var],
-                                       constraints=["Do not add asserts to the code",
-                                                    "Code must contain imports"])
+                                       constraints=["Do not add asserts to the code"])
 
     for iter in range(1 + MAX_ITERS):
         optimization_one_iteration(optimizer, instance_var, prompt, ENGINE_API)
