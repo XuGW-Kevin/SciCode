@@ -15,7 +15,9 @@ SYSTEM_PROMPT_FOR_FIRST_CODE = """You are a helpful assistant."""
 DEFAULT_TEST_TIME_WITH_TESTS = """You are an intelligent assistant used as an evaluator, and part of an optimization system. 
 You will analyze a code implementation for scientific problems. 
 Investigate the problem and the provided implementation. 
-Give very concise feedback. If you think the code is wrong, carefully suggest why there are issues with the code. Do not provide a revised implementation. 
+Provide very concise feedback, only suggesting bugs in the code. 
+Do not include the provided implementation in your response.
+Do not include any improvements or additional suggestions. Do not provide a revised implementation. 
 """
 
 class CodeTestTime(Module):
@@ -57,6 +59,9 @@ def optimization_one_iteration(optimizer, instance_var, prompt, ENGINE_API):
     optimizer.zero_grad()
     loss_fn = CodeTestTime(engine=ENGINE_API)
     test_time_loss = loss_fn(prompt, instance_var)
+    print("------BEGIN------")
+    print(test_time_loss)
+    print("------END------")
     test_time_loss.backward(engine=ENGINE_API)
     optimizer.step()
     return
@@ -77,7 +82,7 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
     :param prompt:
     :return:
     """
-    MAX_ITERS = 1
+    MAX_ITERS = 0
     model = model[9:]
     ENGINE_API = get_engine(engine_name=model) # seed
     generated_programs = []
@@ -93,7 +98,8 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
 
     optimizer = TextualGradientDescent(engine=ENGINE_API,
                                        parameters=[instance_var],
-                                       constraints=["Do not add asserts to the code"])
+                                       constraints=["Do not add asserts to the code",
+                                                    "Do not include dependencies at the beginning of the code"])
 
     for iter in range(1 + MAX_ITERS):
         optimization_one_iteration(optimizer, instance_var, prompt, ENGINE_API)
