@@ -14,10 +14,12 @@ CODE_INSTANCE_ROLE_DESCRIPTION = "Code generated for scientific problems that mu
 SYSTEM_PROMPT_FOR_FIRST_CODE = """You are a helpful assistant."""
 DEFAULT_TEST_TIME_WITH_TESTS = """You are an intelligent assistant used as an evaluator, and part of an optimization system. 
 You will analyze a code implementation for scientific problems. 
-Investigate the problem and the provided implementation. 
-Provide very concise feedback, only suggesting bugs in the code. 
-Do not include the provided implementation in your response.
-Do not include any improvements or additional suggestions. Do not provide a revised implementation. 
+Provide very concise feedback. 
+Find errors in the code about scientific correctness of the problem.
+The code is likely to be wrong if it does not use all of the given dependencies.
+Do not provide feedback on variables, code style, efficiency, or data range. 
+Do not consider edge cases. If the code considers edge cases, suggest removing them.
+Do not include the given code or revised implementation in your response. 
 """
 
 class CodeTestTime(Module):
@@ -29,8 +31,8 @@ class CodeTestTime(Module):
                                             requires_grad=False,
                                             role_description="system prompt for the evaluation of the code solution")
         self.engine = engine
-        format_string = "You are a language model that evaluates a python code snippet.\n"
-        format_string += "{{problem}}\n**{role}**{{program}}**\n"
+        format_string = "You are a language model that evaluates a python code snippet for solving a scientific problem.\n"
+        format_string += "{{problem}}\n**{role}**{{program}}**\n Investigate the scientific problem and the provided implementation. Provide very concise feedback. Find errors in the code about scientific correctness of the problem. The code is likely to be wrong if it does not use all of the given dependencies. Do not provide feedback on variables, code style, efficiency, or data range. Do not consider edge cases. If the code considers edge cases, suggest removing them. Do not include the given code or revised implementation in your response."
         self.format_string = format_string.format(role=CODE_INSTANCE_ROLE_DESCRIPTION)
         self.fields = {"problem": None, "program": None}
         self.formatted_llm_call = FormattedLLMCall(engine=self.engine,
@@ -82,7 +84,7 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
     :param prompt:
     :return:
     """
-    MAX_ITERS = 0
+    MAX_ITERS = 1
     model = model[9:]
     ENGINE_API = get_engine(engine_name=model) # seed
     generated_programs = []
@@ -98,8 +100,10 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
 
     optimizer = TextualGradientDescent(engine=ENGINE_API,
                                        parameters=[instance_var],
-                                       constraints=["Do not add asserts to the code",
-                                                    "Do not include dependencies at the beginning of the code"])
+                                       constraints=["Do not add asserts or raise errors to the code",
+                                                    "Do not include dependencies at the beginning of the code",
+                                                    "Do not consider edge cases",
+                                                    "Think twice about the scientific correctness"])
 
     for iter in range(1 + MAX_ITERS):
         optimization_one_iteration(optimizer, instance_var, prompt, ENGINE_API)
