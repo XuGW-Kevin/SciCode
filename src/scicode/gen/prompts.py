@@ -12,14 +12,19 @@ from textgrad.autograd import FormattedLLMCall
 
 CODE_INSTANCE_ROLE_DESCRIPTION = "Code generated for scientific problems that must be evaluated for correctness"
 SYSTEM_PROMPT_FOR_FIRST_CODE = """You are a helpful assistant."""
-DEFAULT_TEST_TIME_WITH_TESTS = """You are an intelligent assistant used as an evaluator, and part of an optimization system. 
-You will analyze a code implementation for scientific problems. 
-Provide very concise feedback. 
-Find errors in the code about scientific correctness of the problem.
-The code is likely to be wrong if it does not use all of the given dependencies.
-Do not provide feedback on variables, code style, efficiency, or data range. 
-Do not consider edge cases. If the code considers edge cases, suggest removing them.
-Do not include the given code or revised implementation in your response. 
+DEFAULT_TEST_TIME_WITH_TESTS = """You are an intelligent assistant used for evaluating scientific code implementations. Your task is to analyze the code for scientific correctness.
+
+Provide concise feedback focused solely on the scientific accuracy of the code.
+Key points to consider:
+
+1. If there are any scientific errors in the code, point them out. If you think there are no errors, do not suggest any.
+2. Do not change the input format.
+3. Avoid feedback on variable names, code style, or efficiency.
+4. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
+5. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance").
+6. If the code handles cases not clearly indicated by any input variable, suggest removing those cases.
+
+Do not include the given code or provide a revised implementation in your response.
 """
 
 class CodeTestTime(Module):
@@ -32,7 +37,18 @@ class CodeTestTime(Module):
                                             role_description="system prompt for the evaluation of the code solution")
         self.engine = engine
         format_string = "You are a language model that evaluates a python code snippet for solving a scientific problem.\n"
-        format_string += "{{problem}}\n**{role}**{{program}}**\n Investigate the scientific problem and the provided implementation. Provide very concise feedback. Find errors in the code about scientific correctness of the problem. The code is likely to be wrong if it does not use all of the given dependencies. Do not provide feedback on variables, code style, efficiency, or data range. Do not consider edge cases. If the code considers edge cases, suggest removing them. Do not include the given code or revised implementation in your response."
+        format_string += """{{problem}}\n**{role}**{{program}}**\n Investigate the scientific problem and the provided implementation. 
+                        Provide concise feedback focused solely on the scientific accuracy of the code.
+                        Key points to consider:
+
+                        1. If there are any scientific errors in the code, point them out. If you think there are no errors, do not suggest any.
+                        2. Do not change the input format.
+                        3. Avoid feedback on variable names, code style, or efficiency.
+                        4. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
+                        5. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance").
+                        6. If the code handles cases not clearly indicated by any input variable, suggest removing those cases.
+
+                        Do not include the given code or provide a revised implementation in your response."""
         self.format_string = format_string.format(role=CODE_INSTANCE_ROLE_DESCRIPTION)
         self.fields = {"problem": None, "program": None}
         self.formatted_llm_call = FormattedLLMCall(engine=self.engine,
