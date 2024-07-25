@@ -17,12 +17,12 @@ DEFAULT_TEST_TIME_WITH_TESTS = """You are an intelligent assistant used for eval
 Provide concise feedback focused solely on the scientific accuracy of the code.
 Key points to consider:
 
-1. If there are any scientific errors in the code, point them out. If you think there are no errors, do not suggest any.
-2. Do not change the input format.
+1. If there are any scientific errors in the code, point them out and provide correct scientific background. If you think there are no errors, do not suggest any.
+2. Do not change the input format. Do not add or remove input variables.
 3. Avoid feedback on variable names, code style, or efficiency.
 4. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
 5. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance").
-6. If the code handles cases not clearly indicated by any input variable, suggest removing those cases.
+6. If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases.
 
 Do not include the given code or provide a revised implementation in your response.
 """
@@ -41,12 +41,12 @@ class CodeTestTime(Module):
                         Provide concise feedback focused solely on the scientific accuracy of the code.
                         Key points to consider:
 
-                        1. If there are any scientific errors in the code, point them out. If you think there are no errors, do not suggest any.
-                        2. Do not change the input format.
+                        1. If there are any scientific errors in the code, point them out and provide correct scientific background. If you think there are no errors, do not suggest any.
+                        2. Do not change the input format. Do not add or remove input variables.
                         3. Avoid feedback on variable names, code style, or efficiency.
                         4. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
                         5. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance").
-                        6. If the code handles cases not clearly indicated by any input variable, suggest removing those cases.
+                        6. If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases.
 
                         Do not include the given code or provide a revised implementation in your response."""
         self.format_string = format_string.format(role=CODE_INSTANCE_ROLE_DESCRIPTION)
@@ -119,9 +119,10 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
                                        constraints=["Do not add asserts or raise errors to the code",
                                                     "Do not include dependencies at the beginning of the code",
                                                     "Do not consider edge cases",
-                                                    "Think twice about the scientific correctness"])
+                                                    "Do not add or remove input variables",
+                                                    "Do not make scientific errors"])
 
-    for iter in range(1 + MAX_ITERS):
+    for iter in range(MAX_ITERS):
         optimization_one_iteration(optimizer, instance_var, prompt, ENGINE_API)
         n_iter += 1
         generated_programs.append({"code": instance_var.value,
