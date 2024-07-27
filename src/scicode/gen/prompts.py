@@ -17,7 +17,7 @@ DEFAULT_TEST_TIME_WITH_TESTS = """You are an intelligent assistant used for eval
 Provide concise feedback focused solely on the scientific accuracy of the code.
 Key points to consider:
 
-1. If there are any scientific errors in the code, point them out and provide correct scientific background. If you think there are no errors, do not suggest any.
+1. If you are absolutely certain there are scientific errors in the code, point them out and provide the correct scientific background. If you are not sure, do not suggest any changes regarding scientific errors.
 2. Do not change the input format. If the code adds or removes input variables, suggest removing those changes.
 3. Avoid feedback on variable names, code style, or efficiency.
 4. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
@@ -41,7 +41,7 @@ class CodeTestTime(Module):
                         Provide concise feedback focused solely on the scientific accuracy of the code.
                         Key points to consider:
 
-                        1. If there are any scientific errors in the code, point them out and provide correct scientific background. If you think there are no errors, do not suggest any.
+                        1. If you are absolutely certain there are scientific errors in the code, point them out and provide the correct scientific background. If you are not sure, do not suggest any changes regarding scientific errors.
                         2. Do not change the input format. If the code adds or removes input variables, suggest removing those changes.
                         3. Avoid feedback on variable names, code style, or efficiency.
                         4. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
