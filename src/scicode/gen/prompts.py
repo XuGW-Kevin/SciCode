@@ -18,11 +18,11 @@ Provide concise feedback focused solely on the scientific accuracy of the code.
 Key points to consider:
 
 1. If you are absolutely certain there are scientific errors in the code, point them out and provide the correct scientific background. If you are not sure, do not suggest any changes regarding scientific errors.
-2. Do not change the input format. If the code adds or removes input variables, suggest removing those changes.
-3. Avoid feedback on variable names, code style, or efficiency.
-4. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
-5. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance"). If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases.
-6. Check if the calulations in the code have correct formats, dimensions, and signs. If there are errors, point out how to correct them.
+2. Check if the calulations in the code have correct formats, dimensions, and signs. If there are errors, point out how to correct them.
+3. Do not change the input format. If the code adds or removes input variables, suggest removing those changes.
+4. Avoid feedback on variable names, code style, or efficiency.
+5. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
+6. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance"). If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases. 
 
 Do not include the given code or provide a revised implementation in your response.
 """
@@ -42,11 +42,11 @@ class CodeTestTime(Module):
                         Key points to consider:
 
                         1. If you are absolutely certain there are scientific errors in the code, point them out and provide the correct scientific background. If you are not sure, do not suggest any changes regarding scientific errors.
-                        2. Do not change the input format. If the code adds or removes input variables, suggest removing those changes.
-                        3. Avoid feedback on variable names, code style, or efficiency.
-                        4. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
-                        5. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance"). If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases.
-                        6. Check if the calulations in the code have correct formats, dimensions, and signs. If there are errors, point out how to correct them.
+                        2. Check if the calulations in the code have correct formats, dimensions, and signs. If there are errors, point out how to correct them.
+                        3. Do not change the input format. If the code adds or removes input variables, suggest removing those changes.
+                        4. Avoid feedback on variable names, code style, or efficiency.
+                        5. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
+                        6. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance"). If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases. 
 
                         Do not include the given code or provide a revised implementation in your response."""
         self.format_string = format_string.format(role=CODE_INSTANCE_ROLE_DESCRIPTION)
