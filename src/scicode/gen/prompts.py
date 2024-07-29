@@ -23,6 +23,7 @@ Key points to consider:
 4. Avoid feedback on variable names, code style, or efficiency.
 5. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
 6. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance"). If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases. 
+7. Always use the predefined values of the scientific constants given in the problem statement. Do not use self-generated values.
 
 Do not include the given code or provide a revised implementation in your response.
 """
@@ -47,6 +48,7 @@ class CodeTestTime(Module):
                         4. Avoid feedback on variable names, code style, or efficiency.
                         5. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
                         6. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance"). If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases. 
+                        7. Always use the predefined values of the scientific constants given in the problem statement. Do not use self-generated values.
 
                         Do not include the given code or provide a revised implementation in your response."""
         self.format_string = format_string.format(role=CODE_INSTANCE_ROLE_DESCRIPTION)
