@@ -58,7 +58,7 @@ from scicode.parse.parse import process_hdf5_to_tuple
     def run_script(script_path):
         try:
             subprocess.run(['python', script_path], check=True, capture_output=True,
-                           text=True, timeout=180)
+                           text=True, timeout=10)
             return 0
         except subprocess.CalledProcessError as e:
             print(f"Error running script {script_path}: {e}")
@@ -136,7 +136,7 @@ def get_cli() -> argparse.ArgumentParser:
         description=__doc__,
     )
     parser.add_argument(
-        "--model", type=str, default="gpt-4o", help="Model name"
+        "--model", type=str, default="gpt-4o-mini", help="Model name"
     )
     parser.add_argument(
         "--code-dir",
@@ -159,7 +159,7 @@ def get_cli() -> argparse.ArgumentParser:
     parser.add_argument(
         "--jsonl-path",
         type=Path,
-        default=Path("eval", "data", "problems_all.jsonl"),
+        default=Path("eval", "data", "problems_dev.jsonl"),
         help="Path to jsonl file",
     )
     parser.add_argument(

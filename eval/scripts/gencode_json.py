@@ -140,7 +140,7 @@ def get_cli() -> argparse.ArgumentParser:
         description=__doc__,
     )
     parser.add_argument(
-        "--model", type=str, default="gpt-4o", help="Model name"
+        "--model", type=str, default="gpt-4o-mini", help="Model name"
     )
     parser.add_argument(
         "--output-dir",
@@ -151,7 +151,7 @@ def get_cli() -> argparse.ArgumentParser:
     parser.add_argument(
         "--input-path",
         type=Path,
-        default=Path("eval", "data", "problems_all.jsonl"),
+        default=Path("eval", "data", "problems_dev.jsonl"),
         help="Input directory",
     )
     parser.add_argument(
