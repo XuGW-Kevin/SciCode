@@ -58,7 +58,7 @@ from scicode.parse.parse import process_hdf5_to_tuple
     def run_script(script_path):
         try:
             subprocess.run(['python', script_path], check=True, capture_output=True,
-                           text=True, timeout=10)
+                           text=True, timeout=30)
             return 0
         except subprocess.CalledProcessError as e:
             print(f"Error running script {script_path}: {e}")

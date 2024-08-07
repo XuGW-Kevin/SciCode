@@ -1,6 +1,4 @@
 import copy
-from dotenv import load_dotenv
-load_dotenv()
 import textgrad
 from textgrad import EngineLM
 from textgrad import Variable
@@ -18,6 +16,7 @@ import os
 if os.getenv("META_LEARNING_SCRIPT"):
     META_LEARNING_SCRIPT = os.getenv("META_LEARNING_SCRIPT")
 else:
+    raise ValueError("META_LEARNING_SCRIPT environment variable not set")
     META_LEARNING_SCRIPT = """Provide concise feedback focused solely on the scientific accuracy of the code.
     Key points to consider:
     
