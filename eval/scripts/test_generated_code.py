@@ -82,7 +82,7 @@ from scicode.parse.parse import process_hdf5_to_tuple
             prob_id = func_id.split('.')[0]
             print(f'Testing function {func_id} ...')
             tot_prob[int(prob_id) - 1] += 1
-            logs_dir_ = Path(log_dir, model_name + "-" + str(temperature))
+            logs_dir_ = Path(log_dir, model_name + "-" + str(temperature)) if temperature else Path(log_dir, model_name)
             logs_dir_.mkdir(parents=True, exist_ok=True)
             logs_file = Path(logs_dir_, f'{file_path.stem}.txt')
             if logs_file.exists():
@@ -118,14 +118,14 @@ from scicode.parse.parse import process_hdf5_to_tuple
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    with open(f'{output_dir}/{model_name}-{str(temperature)}.txt', 'w') as f:
+    with open(f'{output_dir}/{model_name}-{str(temperature)}.txt' if temperature else f'{output_dir}/{model_name}.txt', 'w') as f:
         f.write(f'correct problems: {correct_prob_num}/{DEV_PROB_NUM if dev_set else PROB_NUM - DEV_PROB_NUM}\n')
         f.write(f'correct steps: {len(correct_step)}/{DEV_STEP_NUM if dev_set else STEP_NUM}\n\n')
         f.write(f'duration: {test_time} seconds\n')
         f.write('\ncorrect problems: ')
         f.write(f'\n\n{[i + 1 for i in range(PROB_NUM) if correct_prob[i] == tot_prob[i] and tot_prob[i] != 0]}\n')
 
-    with open(f'{output_dir}/{model_name}-{str(temperature)}.json', 'w', encoding='utf-8') as f:
+    with open(f'{output_dir}/{model_name}-{str(temperature)}.json' if temperature else f'{output_dir}/{model_name}.json', 'w', encoding='utf-8') as f:
         json.dump(correct_dict, f, indent=4)
     
     shutil.rmtree(tmp_dir)
@@ -169,8 +169,7 @@ def get_cli() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--temperature",
-        type=float,
-        default=0,
+        default=None,
         help="Sampling temperature",
     )
     return parser

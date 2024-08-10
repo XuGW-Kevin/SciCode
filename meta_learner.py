@@ -2,6 +2,7 @@ import os
 import subprocess
 import json
 import textgrad
+import re
 from textgrad import EngineLM
 from textgrad import Variable
 from textgrad.engine import get_engine
@@ -66,7 +67,7 @@ def get_score(model_name):
 subprocess.run(["python", "eval/scripts/gencode_json.py", "--model", f"{GPT_MODEL}"])
 subprocess.run(["python", "eval/scripts/test_generated_code.py", "--model", f"{GPT_MODEL}"])
 
-OPTIMIZE_STEPS = 100
+OPTIMIZE_STEPS = 1000
 META_LEARNING_SCRIPT_MIDDLE = """Key points to consider:
     1. KEY_POINT_HERE
     """
@@ -88,6 +89,7 @@ for cycle_number in range(OPTIMIZE_STEPS):
         PREVIOUS_META_LEARNING_SCRIPT_MIDDLE = META_LEARNING_SCRIPT_MIDDLE
     else:
         META_LEARNING_SCRIPT_MIDDLE = PREVIOUS_META_LEARNING_SCRIPT_MIDDLE
+        continue
 
     with open(compare_file, 'r') as file:
         compare_results = json.load(file)
