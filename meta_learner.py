@@ -75,12 +75,13 @@ best_score = get_score(GPT_MODEL)
 
 for cycle_number in range(OPTIMIZE_STEPS):
     model_name = f"textgrad*{GPT_MODEL}".replace('*', str(cycle_number))
-
+    
+    os.environ['META_LEARNING_SCRIPT'] = META_LEARNING_SCRIPT_HEAD + "\n" + META_LEARNING_SCRIPT_MIDDLE + "\n" + META_LEARNING_SCRIPT_TAIL
     subprocess.run(["python", "eval/scripts/gencode_json.py", "--model", model_name])
     subprocess.run(["python", "eval/scripts/test_generated_code.py", "--model", model_name])
     subprocess.run(["python", "eval/scripts/compare_results.py", f"{GPT_MODEL}", model_name])
-
     compare_file = f"./eval_results/compare/compare_{GPT_MODEL}_and_{model_name}.json"
+    
     current_score = get_score(model_name)
     if current_score > best_score:
         best_score = current_score
@@ -108,5 +109,3 @@ for cycle_number in range(OPTIMIZE_STEPS):
     with open("./eval_results/meta_learning_script.txt", "a") as file:
         file.write(f"Cycle {cycle_number}:\n")
         file.write(META_LEARNING_SCRIPT_MIDDLE + "\n")
-        
-    os.environ['META_LEARNING_SCRIPT'] = META_LEARNING_SCRIPT_HEAD + "\n" + META_LEARNING_SCRIPT_MIDDLE + "\n" + META_LEARNING_SCRIPT_TAIL
