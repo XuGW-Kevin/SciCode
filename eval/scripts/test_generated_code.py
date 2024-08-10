@@ -15,7 +15,7 @@ STEP_NUM = 288
 DEV_STEP_NUM = 50
 
 
-def test_code(model_name, code_dir, log_dir, output_dir, jsonl_path, dev_set=False):
+def test_code(model_name, code_dir, log_dir, output_dir, jsonl_path, temperature, dev_set=False):
 
     jsonl_data = read_from_jsonl(jsonl_path)
     json_dct = {}
@@ -58,7 +58,7 @@ from scicode.parse.parse import process_hdf5_to_tuple
     def run_script(script_path):
         try:
             subprocess.run(['python', script_path], check=True, capture_output=True,
-                           text=True, timeout=30)
+                           text=True, timeout=10)
             return 0
         except subprocess.CalledProcessError as e:
             print(f"Error running script {script_path}: {e}")
@@ -82,7 +82,7 @@ from scicode.parse.parse import process_hdf5_to_tuple
             prob_id = func_id.split('.')[0]
             print(f'Testing function {func_id} ...')
             tot_prob[int(prob_id) - 1] += 1
-            logs_dir_ = Path(log_dir, model_name)
+            logs_dir_ = Path(log_dir, model_name + "-" + str(temperature))
             logs_dir_.mkdir(parents=True, exist_ok=True)
             logs_file = Path(logs_dir_, f'{file_path.stem}.txt')
             if logs_file.exists():
@@ -118,14 +118,14 @@ from scicode.parse.parse import process_hdf5_to_tuple
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    with open(f'{output_dir}/{model_name}.txt', 'w') as f:
+    with open(f'{output_dir}/{model_name}-{str(temperature)}.txt', 'w') as f:
         f.write(f'correct problems: {correct_prob_num}/{DEV_PROB_NUM if dev_set else PROB_NUM - DEV_PROB_NUM}\n')
         f.write(f'correct steps: {len(correct_step)}/{DEV_STEP_NUM if dev_set else STEP_NUM}\n\n')
         f.write(f'duration: {test_time} seconds\n')
         f.write('\ncorrect problems: ')
         f.write(f'\n\n{[i + 1 for i in range(PROB_NUM) if correct_prob[i] == tot_prob[i] and tot_prob[i] != 0]}\n')
 
-    with open(f'{output_dir}/{model_name}.json', 'w', encoding='utf-8') as f:
+    with open(f'{output_dir}/{model_name}-{str(temperature)}.json', 'w', encoding='utf-8') as f:
         json.dump(correct_dict, f, indent=4)
     
     shutil.rmtree(tmp_dir)
@@ -167,6 +167,12 @@ def get_cli() -> argparse.ArgumentParser:
         action='store_true',
         help="Test dev set if enabled",
     )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0,
+        help="Sampling temperature",
+    )
     return parser
 
 
@@ -175,9 +181,10 @@ def main(model: str,
          log_dir: Path,
          output_dir: Path,
          jsonl_path: Path,
+         temperature,
          dev_set: bool
 ) -> None:
-    test_code(model, code_dir, log_dir, output_dir, jsonl_path, dev_set)
+    test_code(model, code_dir, log_dir, output_dir, jsonl_path, temperature, dev_set)
 
 
 if __name__ == "__main__":

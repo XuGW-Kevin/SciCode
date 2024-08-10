@@ -57,13 +57,21 @@ def optimization_one_iteration(instance_var, comparison):
     test_time_loss.backward(engine=ENGINE_API)
     return
 
+def get_score(model_name):
+    file_path = f'./eval_results/{model_name}.txt'
+    with open(file_path, 'r') as file:
+        content = file.read()
+    return int(re.search(r'correct steps:\s+(\d+)/\d+', content).group(1))
+    
 subprocess.run(["python", "eval/scripts/gencode_json.py", "--model", f"{GPT_MODEL}"])
 subprocess.run(["python", "eval/scripts/test_generated_code.py", "--model", f"{GPT_MODEL}"])
 
-OPTIMIZE_STEPS = 10
+OPTIMIZE_STEPS = 100
 META_LEARNING_SCRIPT_MIDDLE = """Key points to consider:
     1. KEY_POINT_HERE
     """
+PREVIOUS_META_LEARNING_SCRIPT_MIDDLE = META_LEARNING_SCRIPT_MIDDLE
+best_score = get_score(GPT_MODEL)
 
 for cycle_number in range(OPTIMIZE_STEPS):
     model_name = f"textgrad*{GPT_MODEL}".replace('*', str(cycle_number))
@@ -73,6 +81,12 @@ for cycle_number in range(OPTIMIZE_STEPS):
     subprocess.run(["python", "eval/scripts/compare_results.py", f"{GPT_MODEL}", model_name])
 
     compare_file = f"./eval_results/compare/compare_{GPT_MODEL}_and_{model_name}.json"
+    current_score = get_score(model_name)
+    if current_score > best_score:
+        best_score = current_score
+        PREVIOUS_META_LEARNING_SCRIPT_MIDDLE = META_LEARNING_SCRIPT_MIDDLE
+    else:
+        META_LEARNING_SCRIPT_MIDDLE = PREVIOUS_META_LEARNING_SCRIPT_MIDDLE
 
     with open(compare_file, 'r') as file:
         compare_results = json.load(file)

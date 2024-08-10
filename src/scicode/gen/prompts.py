@@ -1,5 +1,6 @@
 import copy
 import textgrad
+import warnings
 from textgrad import EngineLM
 from textgrad import Variable
 from textgrad.engine import get_engine
@@ -16,12 +17,13 @@ import os
 if os.getenv("META_LEARNING_SCRIPT"):
     META_LEARNING_SCRIPT = os.getenv("META_LEARNING_SCRIPT")
 else:
-    raise ValueError("META_LEARNING_SCRIPT environment variable not set")
+    warnings.warn("META_LEARNING_SCRIPT environment variable not set")
+    
     META_LEARNING_SCRIPT = """Provide concise feedback focused solely on the scientific accuracy of the code.
     Key points to consider:
     
     1. If you are absolutely certain there are scientific errors in the code, point them out and provide the correct scientific background. If you are not sure, do not suggest any changes regarding scientific errors.
-    2. Check if the calulations in the code have correct formats, dimensions, and signs. If there are errors, point out how to correct them.
+    2. Check if the calculations in the code have correct formats, dimensions, and signs. If there are errors, point out how to correct them.
     3. Do not change the input format. If the code adds or removes input variables, suggest removing those changes.
     4. Avoid feedback on variable names, code style, or efficiency.
     5. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
@@ -92,7 +94,7 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
     :param prompt:
     :return:
     """
-    MAX_ITERS = 1
+    MAX_ITERS = 2
     model = model[9:]
     ENGINE_API = get_engine(engine_name=model) # seed
     generated_programs = []
