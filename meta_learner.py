@@ -2,6 +2,7 @@ import os
 import subprocess
 import json
 import textgrad
+import time
 import re
 from textgrad import EngineLM
 from textgrad import Variable
@@ -64,7 +65,7 @@ def get_score(model_name):
         content = file.read()
     return int(re.search(r'correct steps:\s+(\d+)/\d+', content).group(1))
     
-subprocess.run(["python", "eval/scripts/gencode_json.py", "--model", f"{GPT_MODEL}"])
+subprocess.run(["python", "eval/scripts/gencode_json.py", "--model", f"{GPT_MODEL}", "--temperature", "0.1"])
 subprocess.run(["python", "eval/scripts/test_generated_code.py", "--model", f"{GPT_MODEL}"])
 
 OPTIMIZE_STEPS = 1000
@@ -75,10 +76,10 @@ PREVIOUS_META_LEARNING_SCRIPT_MIDDLE = META_LEARNING_SCRIPT_MIDDLE
 best_score = get_score(GPT_MODEL)
 
 for cycle_number in range(OPTIMIZE_STEPS):
-    model_name = f"textgrad*{GPT_MODEL}".replace('*', str(cycle_number))
+    model_name = f"textgrad-*-{GPT_MODEL}".replace('*', str(cycle_number))
     
     os.environ['META_LEARNING_SCRIPT'] = META_LEARNING_SCRIPT_HEAD + "\n" + META_LEARNING_SCRIPT_MIDDLE + "\n" + META_LEARNING_SCRIPT_TAIL
-    subprocess.run(["python", "eval/scripts/gencode_json.py", "--model", model_name])
+    subprocess.run(["python", "eval/scripts/gencode_json.py", "--model", model_name, "--temperature", "0.1"])
     subprocess.run(["python", "eval/scripts/test_generated_code.py", "--model", model_name])
     subprocess.run(["python", "eval/scripts/compare_results.py", f"{GPT_MODEL}", model_name])
     compare_file = f"./eval_results/compare/compare_{GPT_MODEL}_and_{model_name}.json"
@@ -89,12 +90,11 @@ for cycle_number in range(OPTIMIZE_STEPS):
         PREVIOUS_META_LEARNING_SCRIPT_MIDDLE = META_LEARNING_SCRIPT_MIDDLE
     else:
         META_LEARNING_SCRIPT_MIDDLE = PREVIOUS_META_LEARNING_SCRIPT_MIDDLE
-        continue
 
     with open(compare_file, 'r') as file:
         compare_results = json.load(file)
     
-    ENGINE_API = get_engine(engine_name=GPT_MODEL)
+    ENGINE_API = get_engine(engine_name=GPT_MODEL, seed=int(time.time()), temperature=0.1)
     instance_var = Variable(META_LEARNING_SCRIPT_MIDDLE, requires_grad=True,
                             role_description=CODE_INSTANCE_ROLE_DESCRIPTION)
     optimizer = TextualGradientDescent(engine=ENGINE_API,

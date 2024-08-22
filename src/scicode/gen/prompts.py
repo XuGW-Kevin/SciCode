@@ -1,6 +1,8 @@
 import copy
 import textgrad
 import warnings
+import re
+import time
 from textgrad import EngineLM
 from textgrad import Variable
 from textgrad.engine import get_engine
@@ -21,14 +23,13 @@ else:
     
     META_LEARNING_SCRIPT = """Provide concise feedback focused solely on the scientific accuracy of the code.
     Key points to consider:
-    
-    1. If you are absolutely certain there are scientific errors in the code, point them out and provide the correct scientific background. If you are not sure, do not suggest any changes regarding scientific errors.
-    2. Check if the calculations in the code have correct formats, dimensions, and signs. If there are errors, point out how to correct them.
-    3. Do not change the input format. If the code adds or removes input variables, suggest removing those changes.
-    4. Avoid feedback on variable names, code style, or efficiency.
-    5. Do not consider whether an input is illegal within data ranges; assume all inputs are valid.
-    6. Only consider different cases if they are clearly indicated by an input variable (e.g., "cut off distance"). If the code handles edge cases not clearly indicated by any input variable, suggest removing those cases. 
-    
+    1. **Identify Specific Errors**: Focus on detecting mathematical inaccuracies or incorrect assumptions that may affect the scientific validity of the code.
+    2. **Encourage Comparative Analysis**: Highlight differences in logic or implementation between correct and incorrect code snippets to facilitate understanding.
+    3. **Assess Testing and Assumptions**: Evaluate whether the code has been tested against known cases and discuss how assumptions impact the results.
+    4. **Evaluate Error Handling**: Examine how the code manages potential errors or exceptions to ensure robustness in scientific computations.
+    5. **Encourage Specificity in Suggestions**: Prompt evaluators to provide specific examples of both correct and incorrect implementations for more actionable feedback.
+    6. **Maintain Scientific Relevance**: Ensure that all feedback is strictly related to the scientific accuracy and relevance of the code, considering the specific scientific context of the problem.
+    7. **Avoid Non-Scientific Feedback**: Focus solely on scientific accuracy and algorithmic integrity, avoiding comments on variable names, code style, documentation, data ranges, edge cases, or efficiency.
     Do not include the given code or provide a revised implementation in your response."""
 
 DEFAULT_TEST_TIME_WITH_TESTS += META_LEARNING_SCRIPT
@@ -95,8 +96,8 @@ def generate_textgrad_response(prompt: str, *, model="textgrad-gpt-4-turbo-2024-
     :return:
     """
     MAX_ITERS = 2
-    model = model[9:]
-    ENGINE_API = get_engine(engine_name=model) # seed
+    model = re.search(r'textgrad-\d+-(.+)', model).group(1)
+    ENGINE_API = get_engine(engine_name=model, seed=int(time.time()), temperature=temperature)
     generated_programs = []
     gpt_4_first_code = generate_starting_solution(prompt, ENGINE_API)
     n_iter = 0
